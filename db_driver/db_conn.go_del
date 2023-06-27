@@ -1,0 +1,121 @@
+package db_driver
+
+import (
+    "data_driver/common"
+    "errors"
+    "fmt"
+    "github.com/orcaman/concurrent-map"
+    "gorm.io/driver/clickhouse"
+    "gorm.io/gorm"
+    "time"
+)
+
+const (
+    ClickhouseDB = "clickhouse"
+    MysqlDB = "mysql"
+)
+
+var DsDBConnMap cmap.ConcurrentMap
+
+
+
+type DsDBConn struct {
+    dbConn  *gorm.DB
+    ds      common.DatasourceTable
+}
+
+
+
+// 与datasource建立连接
+func (d *DsDBConn) DBConn() {
+
+}
+
+
+// 检查连接是否可用
+
+
+
+
+
+// ckDBConn 创建clickhouse连接池
+
+func (d *DsDBConn)ckDBConn() (*gorm.DB, error) {
+    // 封装dsn
+    dsn := fmt.Sprintf("tcp://%s:%s?database=%s&username=%s&password=%s&dial_timeout=%d&read_timeout=%d",
+        d.ds.Config.Host, d.ds.Config.Port, d.ds.Config.Username, d.ds.Config.Password, d.ds.Config.ConnectTimeout,
+        d.ds.Config.QueryTimeout)
+    if d.ds.Config.ExtraParams != "" {
+        dsn = dsn + "&" + d.ds.Config.ExtraParams
+    }
+    
+    // 创建连接池
+    chConfig := clickhouse.Config{
+        DSN: dsn,
+    }
+    db, err := gorm.Open(clickhouse.New(chConfig), &gorm.Config{})
+    if err != nil {
+        return nil, err
+    }
+    
+    sqlDB, _ := db.DB()
+    sqlDB.SetMaxIdleConns(int(d.ds.Config.MaxIdleTime))
+    sqlDB.SetMaxOpenConns(int(d.ds.Config.MaxPoolSize))
+    sqlDB.SetConnMaxIdleTime(time.Duration(d.ds.Config.ConnectTimeout) * time.Second)
+    
+    return db, nil
+}
+
+// mysqlDBConn 创建mysql连接池
+func (d *DsDBConn)mysqlDBConn() (*gorm.DB, error) {
+    
+    
+    
+    
+    
+    return nil, nil
+}
+
+// 新建DsDBConn
+
+func NewDsDBConn(datasourceId string, db *gorm.DB) (*DsDBConn, error) {
+    var dbConn DsDBConn
+    
+    err := db.Model(&common.DatasourceTable{}).Where("datasource_id = ?", datasourceId).Find(&dbConn.ds).Error
+    if err != nil {
+        return nil, err
+    }
+    
+    var datasourceDB *gorm.DB
+    var dbErr error
+    
+    switch dbConn.ds.Type {
+    case ClickhouseDB:
+        datasourceDB, dbErr = dbConn.ckDBConn()
+    case MysqlDB:
+        datasourceDB, dbErr = dbConn.mysqlDBConn()
+    default:
+        return nil, errors.New(fmt.Sprintf("datasource type [%s] not support", dbConn.ds.Type))
+    }
+    if dbErr != nil {
+        return nil, dbErr
+    }
+    dbConn.dbConn = datasourceDB
+    
+    // 全局dbConnMap更新
+    dsDBConnMapUpdate(dbConn.ds.DatasourceId, &dbConn)
+    
+    return &dbConn, nil
+}
+
+func dsDBConnMapUpdate(datasourceId string, dsDB *DsDBConn) {
+    if DsDBConnMap.Has(datasourceId) {
+        DsDBConnMap.Remove(datasourceId)
+    }
+    DsDBConnMap.Set(datasourceId, dsDB)
+}
+
+
+func init() {
+    DsDBConnMap = cmap.New()
+}
