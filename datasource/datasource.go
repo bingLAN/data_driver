@@ -1,10 +1,10 @@
 package datasource
 
 import (
-    "data_driver/common"
-    "data_driver/db_driver"
     "errors"
     "fmt"
+    "github.com/bingLAN/data_driver/common"
+    "github.com/bingLAN/data_driver/db_driver"
     cmap "github.com/orcaman/concurrent-map"
     "gorm.io/gorm"
 )

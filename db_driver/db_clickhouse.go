@@ -2,7 +2,7 @@ package db_driver
 
 import (
     "context"
-    "data_driver/common"
+    "github.com/bingLAN/data_driver/common"
     "errors"
     "fmt"
     "gorm.io/driver/clickhouse"

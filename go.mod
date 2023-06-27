@@ -1,4 +1,4 @@
-module data_driver
+module github.com/bingLAN/data_driver
 
 go 1.17
 

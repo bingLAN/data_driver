@@ -1,7 +1,7 @@
 package dataset
 
 import (
-    "data_driver/common"
+    "github.com/bingLAN/data_driver/common"
     "gorm.io/gorm"
 )
 

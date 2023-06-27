@@ -1,9 +1,9 @@
 package dataset
 
 import (
-    "data_driver/common"
-    "data_driver/datasource"
-    "data_driver/db_driver"
+    "github.com/bingLAN/data_driver/common"
+    "github.com/bingLAN/data_driver/datasource"
+    "github.com/bingLAN/data_driver/db_driver"
     "errors"
     "fmt"
     cmap "github.com/orcaman/concurrent-map"

@@ -1,7 +1,7 @@
 package db_driver
 
 import (
-    "data_driver/common"
+    "github.com/bingLAN/data_driver/common"
 )
 
 
