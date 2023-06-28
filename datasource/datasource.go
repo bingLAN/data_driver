@@ -99,7 +99,7 @@ func (ds *Datasources) ModifyDatasource(dt common.DatasourceTable, db *gorm.DB) 
     }
     
     // 下发到driver层
-    source := datasource.(Datasource)
+    source := datasource.(*Datasource)
     _ = source.DBDriver.Close()
     source.DBDriver = nil
     
