@@ -76,7 +76,7 @@ func (ds *Datasources) DelDatasourceById(sourceId string, db *gorm.DB) error {
     }
     
     // 下发到driver层
-    source := datasource.(Datasource)
+    source := datasource.(*Datasource)
      _ = source.DBDriver.Close()
     source.DBDriver = nil
     

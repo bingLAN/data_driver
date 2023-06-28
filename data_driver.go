@@ -42,6 +42,12 @@ func (d *DataDriver) AddDatasource(dt *common.DatasourceTable, db *gorm.DB) erro
 // 删除数据源
 
 func (d *DataDriver) DelDatasource(datasourceId string, db *gorm.DB) error {
+    // 删除数据源关联的数据集
+    err := d.datasets.DatasetDelBySourceID(datasourceId, db)
+    if err != nil {
+        return err
+    }
+    
     return d.datasources.DelDatasourceById(datasourceId, db)
 }
 

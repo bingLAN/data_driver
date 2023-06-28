@@ -1,11 +1,11 @@
 package dataset
 
 import (
+    "errors"
+    "fmt"
     "github.com/bingLAN/data_driver/common"
     "github.com/bingLAN/data_driver/datasource"
     "github.com/bingLAN/data_driver/db_driver"
-    "errors"
-    "fmt"
     cmap "github.com/orcaman/concurrent-map"
     "gorm.io/gorm"
 )
@@ -174,6 +174,24 @@ func (d *Datasets) GetAllDatasetFromDB(db *gorm.DB) ([]common.DatasetTable, erro
     
     return datasets, nil
 }
+
+func (d *Datasets) DatasetDelBySourceID(datasrouceId string, db *gorm.DB) error {
+    
+    for k, v := range d.datasetMap.Items() {
+        ds := v.(*Dataset)
+        if ds.DatasetInfo.DatasourceId == datasrouceId {
+            err := d.DatasetDel(k, db)
+            if err != nil {
+                return err
+            }
+            d.datasetMap.Remove(k)
+        }
+        
+    }
+    
+    return nil
+}
+
 
 // 更新数据库datasetTable以及field表。
 // 更新datasetMap。
