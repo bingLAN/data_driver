@@ -1,6 +1,8 @@
 package data_driver
 
 import (
+    "errors"
+    "fmt"
     "github.com/bingLAN/data_driver/common"
     "github.com/bingLAN/data_driver/dataset"
     "github.com/bingLAN/data_driver/datasource"
@@ -29,6 +31,11 @@ func (d *DataDriver) GetData(datasetId string, db *gorm.DB, offset, limit int, s
 // 添加数据源
 
 func (d *DataDriver) AddDatasource(dt *common.DatasourceTable, db *gorm.DB) error {
+    if dt.DatasourceId != "" {
+        // 不支持自定义id
+        return errors.New(fmt.Sprintf("datasourceId [%s] exist", dt.DatasourceId))
+    }
+    
     return d.datasources.CreateDatasource(dt, db)
 }
 
