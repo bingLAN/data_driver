@@ -113,7 +113,7 @@ func (ds *Datasources) ModifyDatasource(dt common.DatasourceTable, db *gorm.DB) 
     }
     
     // 更新数据库
-    err = db.Model(&common.DatasourceTable{}).Updates(dt).Error
+    err = db.Model(&common.DatasourceTable{}).Where("datasource_id = ?", dt.DatasourceId).Updates(dt).Error
     return err
 }
 
