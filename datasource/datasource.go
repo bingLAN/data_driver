@@ -130,7 +130,8 @@ func (ds *Datasources) createDatasourceStruct(dt *common.DatasourceTable, db *go
     var err error
     switch dt.Type {
     case db_driver.DatasourceCH:
-        dbDriver, err := db_driver.NewClickhouseDriver(*dt)
+        var dbDriver db_driver.DBDriver
+        dbDriver, err = db_driver.NewClickhouseDriver(*dt)
         if err == nil {
             // 存入缓存表
             if dt.Status != db_driver.ConnSuccess {
