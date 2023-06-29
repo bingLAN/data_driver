@@ -89,6 +89,12 @@ func (d *DataDriver) ScanDatasets(db *gorm.DB) ([]common.DatasetTable, error) {
     return d.datasets.GetAllDatasetFromDB(db)
 }
 
+// 获取单个数据集信息
+
+func (d *DataDriver) GetDataset(datasetId string, db *gorm.DB) (*dataset.Dataset, error) {
+    return d.datasets.GetDatasetById(datasetId)
+}
+
 // 添加数据集
 
 func (d *DataDriver) AddDataset(dsTable *common.DatasetTable, db *gorm.DB) error {
