@@ -40,16 +40,16 @@ func (DatasetTable) TableName() string {
 
 type DatasetTableField struct {
     FieldId string `gorm:"primaryKey;column:field_id" db:"field_id" json:"field_id" form:"field_id"`  //  数据集域id
-    DatasetId string `gorm:"column:dataset_id" db:"dataset_id" json:"-" form:"-"`  //  数据集id
+    DatasetId string `gorm:"column:dataset_id" db:"dataset_id" json:"dataset_id" form:"dataset_id"`  //  数据集id
     OriginName string `gorm:"column:origin_name" db:"origin_name" json:"-" form:"-"`  //  原始字段名
     Name string `gorm:"column:name" db:"name" json:"name" form:"name"`  //  字段名名
-    GroupType string `gorm:"column:group_type" db:"group_type" json:"-" form:"-"`  //  维度/指标标识 d:维度，q:指标
+    GroupType string `gorm:"column:group_type" db:"group_type" json:"group_type" form:"group_type"`  //  维度/指标标识 d:维度，q:指标
     Type string `gorm:"column:type" db:"type" json:"type" form:"type"`  //  原始字段类型
     Size int64 `gorm:"column:size" db:"size" json:"-" form:"-"`
     DsType int64 `gorm:"column:ds_type" db:"ds_type" json:"-" form:"-"`  //  dataease字段类型：0-文本，1-时间，2-整型数值，3-浮点数值...
     ExtField int64 `gorm:"column:ext_field" db:"ext_field" json:"-" form:"-"`  //  是否扩展字段 0否 1是
     Checked int64 `gorm:"column:checked" db:"checked" json:"-" form:"-"`  //  是否选中 0:否 1：是
-    ColumnIndex int64 `gorm:"column:column_index" db:"column_index" json:"-" form:"-"`  //  列位置
+    ColumnIndex int64 `gorm:"column:column_index" db:"column_index" json:"column_index" form:"column_index"`  //  列位置
     LastSyncTime time.Time `gorm:"column:last_sync_time;autoCreateTime;autoUpdateTime" db:"last_sync_time" json:"-" form:"-"`  //  同步时间
     Accuracy int64 `gorm:"column:accuracy" db:"accuracy" json:"-" form:"-"`  //  精度
     DateFormat string `gorm:"column:date_format" db:"date_format" json:"-" form:"-"`
