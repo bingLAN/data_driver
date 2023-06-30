@@ -117,6 +117,17 @@ func (d *DataDriver) Close() {
     d.datasources.Close()
 }
 
+// 查看指定数据集的所有field
+
+func (d *DataDriver) ScanDatasetFields(datasetId string, db *gorm.DB) ([]common.DatasetTableField, error) {
+    dataset, err := d.datasets.GetDatasetById(datasetId)
+    if err != nil {
+        return nil, err
+    }
+
+    return dataset.GetFields(), nil
+}
+
 
 // driver初始化，自动从数据库中加载数据源和数据集
 

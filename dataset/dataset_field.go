@@ -10,11 +10,15 @@ type DatasetField struct {
     fields      []common.DatasetTableField
 }
 
-func (d *DatasetField) getFieldsFromDB(db *gorm.DB) {
+func (d *DatasetField) getFieldsFromDB(db *gorm.DB) ([]common.DatasetTableField, error) {
+    var res []common.DatasetTableField
 
+    err := db.Model(&common.DatasetTableField{}).Where("dataset_id = ?", d.datasetId).Scan(&res).Error
+    if err != nil {
+        return nil, err
+    }
 
-
-
+    return res, nil
 }
 
 func createDatasetFieldId() string {
