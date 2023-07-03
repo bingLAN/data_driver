@@ -61,6 +61,46 @@ func (d *Datasets) GetDatasetById(datasetId string) (*Dataset, error) {
     return s.(*Dataset), nil
 }
 
+func (d *Datasets) ModifyDatasetFields(fields []common.DatasetTableField, db *gorm.DB) error {
+    if len(fields) == 0 {
+        return nil
+    }
+    datasetId := fields[0].DatasetId
+    s, ok := d.datasetMap.Get(datasetId)
+    if !ok {
+        return errors.New(fmt.Sprintf("datasetMap doesn't have [%s] dataset", datasetId))
+    }
+    dataset := s.(*Dataset)
+
+    // 建立map同时同步db
+
+   tx := db.Begin()
+
+    fieldsMap := make(map[string]int)
+    for index, _ := range fields {
+        fieldId := fields[index].FieldId
+        fieldsMap[fieldId] = index
+
+        err := tx.Model(&common.DatasetTableField{}).Where("field_id = ?", fields[index].FieldId).Update("group_type = ?", fields[index].GroupType).Error
+        if err != nil {
+            tx.Rollback()
+            return err
+        }
+    }
+
+
+    // 同步cache
+    for index, _ := range dataset.Fields.fields {
+        if index2, ok := fieldsMap[dataset.Fields.fields[index].FieldId]; ok {
+            dataset.Fields.fields[index].GroupType = fields[index2].GroupType
+        }
+    }
+
+    tx.Commit()
+
+    return nil
+}
+
 
 // DatasetCacheInit 加载数据集全表
 // db后端数据库句柄

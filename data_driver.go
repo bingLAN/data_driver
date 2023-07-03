@@ -128,6 +128,12 @@ func (d *DataDriver) ScanDatasetFields(datasetId string, db *gorm.DB) ([]common.
     return dataset.GetFields(), nil
 }
 
+// 修改数据集field
+
+func (d *DataDriver) ModifyDatasetFields(fields []common.DatasetTableField, db *gorm.DB) error {
+    return d.datasets.ModifyDatasetFields(fields, db)
+}
+
 
 // driver初始化，自动从数据库中加载数据源和数据集
 
