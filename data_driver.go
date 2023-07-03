@@ -28,6 +28,25 @@ func (d *DataDriver) GetData(datasetId string, db *gorm.DB, offset, limit int, s
     return ds.GetData(datasetId, db, offset, limit, sortNames, sortOpt)
 }
 
+// 该接口用于数据集填写还未下发时查询数据集数据样本
+
+func (d *DataDriver) QueryDataByTable(dsTable common.DatasetTable, offset, limit int, sortNames []string, sortOpt string) (*common.DsResult, error) {
+    datasourceId := dsTable.DatasourceId
+    datasource, err := d.datasources.GetDatasourceFromCache(datasourceId)
+    if err != nil {
+        return nil, errors.New(fmt.Sprintf("datasourceId [%s] exist", datasourceId))
+    }
+
+    // 调用驱动层获取fields, fieldId已在驱动层填充
+    fields, err := datasource.DBDriver.GetDataFields(dsTable)
+    if err != nil {
+        return nil, err
+    }
+
+    return datasource.DBDriver.GetData("", &dsTable, fields, offset, limit, sortNames, sortOpt)
+}
+
+
 // 添加数据源
 
 func (d *DataDriver) AddDatasource(dt *common.DatasourceTable, db *gorm.DB) error {
