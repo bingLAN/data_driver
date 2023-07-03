@@ -82,7 +82,7 @@ func (d *Datasets) ModifyDatasetFields(fields []common.DatasetTableField, db *go
         fieldsMap[fieldId] = index
 
         // 注意：updates只会更新非0字段
-        err := tx.Model(&common.DatasetTableField{}).Where("field_id = ?", fields[index].FieldId).Updates(fields).Error
+        err := tx.Model(&common.DatasetTableField{}).Where("field_id = ?", fields[index].FieldId).Updates(fields[index]).Error
         if err != nil {
             tx.Rollback()
             return err
