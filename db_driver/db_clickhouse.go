@@ -147,17 +147,21 @@ func (c *ClickhouseDriver) sqlSortBuild(fields []common.DatasetTableField, sortN
     return sortSql, nil
 }
 
-func (c *ClickhouseDriver) sqlBuildDB(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) (string, error) {
+func (c *ClickhouseDriver) sqlBuildDB(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) (string, error) {
     var sql string
     
     sortSql, err := c.sqlSortBuild(fields, sortNames, sortOpt)
     if err != nil {
         return "", err
     }
-    if sortSql == "" {
+    if filter == "" {
         sql = fmt.Sprintf("select * from %s", di.Info)
     } else {
-        sql = fmt.Sprintf("select * from %s order by %s", di.Info, sortSql)
+        sql = fmt.Sprintf("select * from %s where %s", di.Info, filter)
+    }
+
+    if sortSql != "" {
+        sql += fmt.Sprintf(" order by %s", sortSql)
     }
     
     // 仅在分页或limit字段有效时才构建
@@ -168,17 +172,21 @@ func (c *ClickhouseDriver) sqlBuildDB(di *common.DatasetTable, fields []common.D
     return sql, nil
 }
 
-func (c *ClickhouseDriver) sqlBuildSQL(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) (string, error) {
+func (c *ClickhouseDriver) sqlBuildSQL(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) (string, error) {
     var sql string
     
     sortSql, err := c.sqlSortBuild(fields, sortNames, sortOpt)
     if err != nil {
         return "", err
     }
-    if sortSql == "" {
+    if filter == "" {
         sql = fmt.Sprintf("select * from (%s)", di.Info)
     } else {
-        sql = fmt.Sprintf("select * from (%s) order by %s", di.Info, sortSql)
+        sql = fmt.Sprintf("select * from (%s) where %s", di.Info, filter)
+    }
+
+    if sortSql != "" {
+        sql += fmt.Sprintf(" order by %s", sortSql)
     }
     
     // 仅在分页或limit字段有效时才构建
@@ -189,16 +197,16 @@ func (c *ClickhouseDriver) sqlBuildSQL(di *common.DatasetTable, fields []common.
     return sql, nil
 }
 
-func (c *ClickhouseDriver) sqlBuild(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) (string, error) {
+func (c *ClickhouseDriver) sqlBuild(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) (string, error) {
     
     // 根据db/sql类型分别组装sql
     var sql string
     var err error
     switch di.Type {
     case common.DatasetTypeDB:
-        sql, err = c.sqlBuildDB(di, fields, offset, limit, sortNames, sortOpt)
+        sql, err = c.sqlBuildDB(di, fields, offset, limit, sortNames, sortOpt, filter)
     case common.DatasetTypeSQL:
-        sql, err = c.sqlBuildSQL(di, fields, offset, limit, sortNames, sortOpt)
+        sql, err = c.sqlBuildSQL(di, fields, offset, limit, sortNames, sortOpt, filter)
     default:
         return "", errors.New(fmt.Sprintf("dataset type [%s] not define", c.datasourceInfo.Type))
     }
@@ -209,8 +217,8 @@ func (c *ClickhouseDriver) sqlBuild(di *common.DatasetTable, fields []common.Dat
     return sql, nil
 }
 
-func (c *ClickhouseDriver) sqlExec(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) ([]common.SqlRes, error) {
-    sql, err := c.sqlBuild(di, fields, offset, limit, sortNames, sortOpt)
+func (c *ClickhouseDriver) sqlExec(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) ([]common.SqlRes, error) {
+    sql, err := c.sqlBuild(di, fields, offset, limit, sortNames, sortOpt, filter)
     if err != nil {
         return nil, err
     }
@@ -331,8 +339,8 @@ func (c *ClickhouseDriver) series(sqlRes []common.SqlRes, fields []common.Datase
 // 根据sql执行结果，封装DsResult结构
 
 func (c *ClickhouseDriver) GetData(datasetId string, di *common.DatasetTable, fields []common.DatasetTableField,
-    offset, limit int, sortNames []string, sortOpt string) (*common.DsResult, error) {
-    sqlRes, err := c.sqlExec(di, fields, offset, limit, sortNames, sortOpt)
+    offset, limit int, sortNames []string, sortOpt string, filter string) (*common.DsResult, error) {
+    sqlRes, err := c.sqlExec(di, fields, offset, limit, sortNames, sortOpt, filter)
     if err != nil {
         return nil, err
     }

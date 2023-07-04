@@ -46,7 +46,7 @@ type DBDriver interface {
     GetDBConnStatus() DBConnStatus      // 查看数据记录的连接状态
     CheckDBConnStatus() DBConnStatus    // 调用api查看当前连接状态
     GetDataFields(dsTable common.DatasetTable) ([]common.DatasetTableField, error)  // 获取该数据集所有field域信息
-    GetData(datasetId string, di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) (*common.DsResult, error) // 数据访问
+    GetData(datasetId string, di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) (*common.DsResult, error) // 数据访问
 }
 
 type FieldDef struct {

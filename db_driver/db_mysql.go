@@ -86,17 +86,22 @@ func (m *MysqlDriver) sqlSortBuild(fields []common.DatasetTableField, sortNames 
     return sortSql, nil
 }
 
-func (m *MysqlDriver) sqlBuildDB(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) (string, error) {
+func (m *MysqlDriver) sqlBuildDB(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) (string, error) {
     var sql string
 
     sortSql, err := m.sqlSortBuild(fields, sortNames, sortOpt)
     if err != nil {
         return "", err
     }
-    if sortSql == "" {
+    if filter == "" {
         sql = fmt.Sprintf("select * from %s", di.Info)
     } else {
-        sql = fmt.Sprintf("select * from %s order by %s", di.Info, sortSql)
+        sql = fmt.Sprintf("select * from %s where %s", di.Info, filter)
+    }
+
+
+    if sortSql != "" {
+        sql += fmt.Sprintf(" order by %s", sortSql)
     }
 
     // 仅在分页或limit字段有效时才构建
@@ -107,17 +112,22 @@ func (m *MysqlDriver) sqlBuildDB(di *common.DatasetTable, fields []common.Datase
     return sql, nil
 }
 
-func (m *MysqlDriver) sqlBuildSQL(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) (string, error) {
+func (m *MysqlDriver) sqlBuildSQL(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) (string, error) {
     var sql string
 
     sortSql, err := m.sqlSortBuild(fields, sortNames, sortOpt)
     if err != nil {
         return "", err
     }
-    if sortSql == "" {
+    if filter == "" {
         sql = fmt.Sprintf("select * from (%s) t", di.Info)
     } else {
-        sql = fmt.Sprintf("select * from (%s) t order by %s", di.Info, sortSql)
+        sql = fmt.Sprintf("select * from (%s) t where %s", di.Info, filter)
+    }
+
+
+    if sortSql != "" {
+        sql += fmt.Sprintf(" order by %s", sortSql)
     }
 
     // 仅在分页或limit字段有效时才构建
@@ -128,16 +138,16 @@ func (m *MysqlDriver) sqlBuildSQL(di *common.DatasetTable, fields []common.Datas
     return sql, nil
 }
 
-func (m *MysqlDriver) sqlBuild(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) (string, error) {
+func (m *MysqlDriver) sqlBuild(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) (string, error) {
 
     // 根据db/sql类型分别组装sql
     var sql string
     var err error
     switch di.Type {
     case common.DatasetTypeDB:
-        sql, err = m.sqlBuildDB(di, fields, offset, limit, sortNames, sortOpt)
+        sql, err = m.sqlBuildDB(di, fields, offset, limit, sortNames, sortOpt, filter)
     case common.DatasetTypeSQL:
-        sql, err = m.sqlBuildSQL(di, fields, offset, limit, sortNames, sortOpt)
+        sql, err = m.sqlBuildSQL(di, fields, offset, limit, sortNames, sortOpt, filter)
     default:
         return "", errors.New(fmt.Sprintf("dataset type [%s] not define", m.datasourceInfo.Type))
     }
@@ -148,8 +158,8 @@ func (m *MysqlDriver) sqlBuild(di *common.DatasetTable, fields []common.DatasetT
     return sql, nil
 }
 
-func (m *MysqlDriver) sqlExec(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string) ([]common.SqlRes, error) {
-    sql, err := m.sqlBuild(di, fields, offset, limit, sortNames, sortOpt)
+func (m *MysqlDriver) sqlExec(di *common.DatasetTable, fields []common.DatasetTableField, offset, limit int, sortNames []string, sortOpt string, filter string) ([]common.SqlRes, error) {
+    sql, err := m.sqlBuild(di, fields, offset, limit, sortNames, sortOpt, filter)
     if err != nil {
         return nil, err
     }
@@ -270,8 +280,8 @@ func (m *MysqlDriver) series(sqlRes []common.SqlRes, fields []common.DatasetTabl
 // 根据sql执行结果，封装DsResult结构
 
 func (m *MysqlDriver) GetData(datasetId string, di *common.DatasetTable, fields []common.DatasetTableField,
-    offset, limit int, sortNames []string, sortOpt string) (*common.DsResult, error) {
-    sqlRes, err := m.sqlExec(di, fields, offset, limit, sortNames, sortOpt)
+    offset, limit int, sortNames []string, sortOpt string, filter string) (*common.DsResult, error) {
+    sqlRes, err := m.sqlExec(di, fields, offset, limit, sortNames, sortOpt, filter)
     if err != nil {
         return nil, err
     }
