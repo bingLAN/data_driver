@@ -259,6 +259,7 @@ func (d *Datasets) DatasetDel(datasetId string, db *gorm.DB) error {
         tx.Rollback()
         return err
     }
+    tx.Commit()
     
     // 再清除map表
     d.datasetMap.Remove(datasetId)
