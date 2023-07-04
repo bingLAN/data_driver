@@ -115,9 +115,9 @@ func (m *MysqlDriver) sqlBuildSQL(di *common.DatasetTable, fields []common.Datas
         return "", err
     }
     if sortSql == "" {
-        sql = fmt.Sprintf("select * from (%s)", di.Info)
+        sql = fmt.Sprintf("select * from (%s) t", di.Info)
     } else {
-        sql = fmt.Sprintf("select * from (%s) order by %s", di.Info, sortSql)
+        sql = fmt.Sprintf("select * from (%s) t order by %s", di.Info, sortSql)
     }
 
     // 仅在分页或limit字段有效时才构建
