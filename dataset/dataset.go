@@ -253,7 +253,7 @@ func (d *Datasets) DatasetDel(datasetId string, db *gorm.DB) error {
         return err
     }
     // 再删除dataset表
-    err = tx.Where("dataset_id = ?", datasetId).Delete(&common.DatasetTableField{}).Error
+    err = tx.Where("dataset_id = ?", datasetId).Delete(&common.DatasetTable{}).Error
     if err != nil {
         // 回滚
         tx.Rollback()
