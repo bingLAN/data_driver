@@ -1,9 +1,9 @@
 package data_driver
 
 import (
-    "github.com/bingLAN/data_driver/common"
     "encoding/json"
     "fmt"
+    "github.com/bingLAN/data_driver/common"
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
     "testing"
@@ -75,7 +75,7 @@ func TestData(t *testing.T) {
     }
 
     // 查看数据
-    res, err := dd.GetData(dataset.DatasetId, db, 0, 1000, nil, "")
+    res, err := dd.GetData(dataset.DatasetId, db, 0, 1000, nil, "", "")
     if err != nil {
         t.Fatal(err)
     }
@@ -104,7 +104,7 @@ func TestQuery(t *testing.T) {
     }
     fmt.Println(s)
     
-    res, err := dd.GetData("46b8ed35-9fa0-43b7-8249-3f4860516890", db, 0, 1000, nil, "")
+    res, err := dd.GetData("46b8ed35-9fa0-43b7-8249-3f4860516890", db, 0, 1000, nil, "", "server_prov_str='北京市'")
     if err != nil {
         t.Fatal(err)
     }
