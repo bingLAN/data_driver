@@ -31,8 +31,16 @@ const (
     DatasourceMYSQL string = "mysql"
 )
 
+type DBDriverHandle struct {
+    CreateFunc  func(datasourceInfo common.DatasourceTable) (DBDriver, error)
+}
+
+var DBDriverMap = map[string] DBDriverHandle {
+    DatasourceCH: {CreateFunc: NewClickhouseDriver},
+    DatasourceMYSQL: {CreateFunc: NewMysqlDriver},
+}
+
 type DBDriver interface {
-    //DBConn() error          // 建立连接池
     DBRecovery() error      // 建立池恢复
     Close() error           // 关闭
     GetDBConnStatus() DBConnStatus      // 查看数据记录的连接状态

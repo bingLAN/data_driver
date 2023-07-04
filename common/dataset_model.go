@@ -17,6 +17,7 @@ const (
     DSTypeTime int64 = 1    //时间
     DSTypeInt int64 = 2     //整形
     DSTypeDEC int64 = 3     //浮点
+    DSTypeBit int64 = 4
 )
 
 type DatasetTable struct {

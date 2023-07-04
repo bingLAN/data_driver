@@ -128,10 +128,38 @@ func (ds *Datasources) createDatasourceStruct(dt *common.DatasourceTable, db *go
     
     // 根据类型创建不同数据源
     var err error
-    switch dt.Type {
-    case db_driver.DatasourceCH:
+    //switch dt.Type {
+    //case db_driver.DatasourceCH:
+    //    var dbDriver db_driver.DBDriver
+    //    dbDriver, err = db_driver.NewClickhouseDriver(*dt)
+    //    if err == nil {
+    //        // 存入缓存表
+    //        if dt.Status != db_driver.ConnSuccess {
+    //            dt.Status = db_driver.ConnSuccess
+    //            // 同步数据库
+    //            if db != nil {
+    //                db.Model(&common.DatasourceTable{}).Where("datasource_id = ?", dt.DatasourceId).Update("status", dt.Status)
+    //            }
+    //        }
+    //
+    //        ds.dbDriverMap.Set(dt.DatasourceId, &Datasource{
+    //            datasourceType: dt.Type,
+    //            tableInfo: *dt,
+    //            DBDriver: dbDriver,
+    //        })
+    //    } else {
+    //        dt.Status = db_driver.ConnFail
+    //    }
+    //case db_driver.DatasourceMYSQL:
+    //
+    //default:
+    //    err = errors.New(fmt.Sprintf("datasource type [%s] not support", dt.Type))
+    //}
+
+
+    if driver, ok := db_driver.DBDriverMap[dt.Type]; ok {
         var dbDriver db_driver.DBDriver
-        dbDriver, err = db_driver.NewClickhouseDriver(*dt)
+        dbDriver, err = driver.CreateFunc(*dt)
         if err == nil {
             // 存入缓存表
             if dt.Status != db_driver.ConnSuccess {
@@ -141,7 +169,7 @@ func (ds *Datasources) createDatasourceStruct(dt *common.DatasourceTable, db *go
                     db.Model(&common.DatasourceTable{}).Where("datasource_id = ?", dt.DatasourceId).Update("status", dt.Status)
                 }
             }
-            
+
             ds.dbDriverMap.Set(dt.DatasourceId, &Datasource{
                 datasourceType: dt.Type,
                 tableInfo: *dt,
@@ -150,9 +178,8 @@ func (ds *Datasources) createDatasourceStruct(dt *common.DatasourceTable, db *go
         } else {
             dt.Status = db_driver.ConnFail
         }
-    case db_driver.DatasourceMYSQL:
-    
-    default:
+
+    } else {
         err = errors.New(fmt.Sprintf("datasource type [%s] not support", dt.Type))
     }
     
