@@ -22,9 +22,9 @@ type MysqlDriver struct {
 
 func (m *MysqlDriver) DBConn() error {
     // 封装dsn
-    dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=%d",
+    dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
         m.datasourceInfo.Config.Username, m.datasourceInfo.Config.Password, m.datasourceInfo.Config.Host, m.datasourceInfo.Config.Port,
-        m.datasourceInfo.Config.DataBase, m.datasourceInfo.Config.ConnectTimeout)
+        m.datasourceInfo.Config.DataBase)
     if m.datasourceInfo.Config.ExtraParams != "" {
         dsn = dsn + "&" + m.datasourceInfo.Config.ExtraParams
     }
