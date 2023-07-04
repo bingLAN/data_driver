@@ -16,7 +16,7 @@ type Dataset struct {
     Datasource  *datasource.Datasource
 }
 
-func (ds *Dataset) GetData(datasetId string, db *gorm.DB, offset, limit int, sortNames []string, sortOpt string) (*common.DsResult, error) {
+func (ds *Dataset) GetData(datasetId string, db *gorm.DB, offset, limit int, sortNames []string, sortOpt string, filter string) (*common.DsResult, error) {
     // 查看数据源是否可用
     status := ds.Datasource.DBDriver.GetDBConnStatus()
     if status != db_driver.ConnSuccess {
@@ -34,7 +34,7 @@ func (ds *Dataset) GetData(datasetId string, db *gorm.DB, offset, limit int, sor
     }
     
     // 调用db_driver的接口
-    return ds.Datasource.DBDriver.GetData(datasetId, ds.DatasetInfo, ds.Fields.fields, offset, limit, sortNames, sortOpt)
+    return ds.Datasource.DBDriver.GetData(datasetId, ds.DatasetInfo, ds.Fields.fields, offset, limit, sortNames, sortOpt, filter)
 }
 
 func (ds *Dataset) GetFields() []common.DatasetTableField {

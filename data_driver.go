@@ -19,13 +19,13 @@ type DataDriver struct {
 // sortNames: 排序字段，最终会组装成order by的参数
 // sortOpt: 排序方式，asc/desc
 
-func (d *DataDriver) GetData(datasetId string, db *gorm.DB, offset, limit int, sortNames []string, sortOpt string) (*common.DsResult, error) {
+func (d *DataDriver) GetData(datasetId string, db *gorm.DB, offset, limit int, sortNames []string, sortOpt string, filter string) (*common.DsResult, error) {
     ds, err := d.datasets.GetDatasetById(datasetId)
     if err != nil {
         return nil, err
     }
     
-    return ds.GetData(datasetId, db, offset, limit, sortNames, sortOpt)
+    return ds.GetData(datasetId, db, offset, limit, sortNames, sortOpt, filter)
 }
 
 // 该接口用于数据集填写还未下发时查询数据集数据样本
@@ -43,7 +43,7 @@ func (d *DataDriver) QueryDataByTable(dsTable common.DatasetTable, offset, limit
         return nil, err
     }
 
-    return datasource.DBDriver.GetData("", &dsTable, fields, offset, limit, sortNames, sortOpt)
+    return datasource.DBDriver.GetData("", &dsTable, fields, offset, limit, sortNames, sortOpt, "")
 }
 
 
